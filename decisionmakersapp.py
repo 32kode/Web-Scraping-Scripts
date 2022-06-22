@@ -18,17 +18,13 @@ x = 0
 
 
 def select_file():
-    filetypes = (
-        ("text files", "*txt",)
-    )
-
     filename = fd.askopenfile(
         title="open a file",
         initialdir="/",
     )
 
     for files in filename:
-        global x
+        global x  # set x as 0 and after that increment by one
         x += 1
         label.configure(text="Please wait...\nloading decision maker info")
         root.update_idletasks()
@@ -36,7 +32,6 @@ def select_file():
         fonrlist.append(newfo_nr)
         root.after(200, print(""))  # sleep for 2 seconds
         url = f"https://www.asiakastieto.fi/yritykset/fi/{newfo_nr}/paattajat"
-
         s = requests.Session()
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[502, 503, 504])
         s.mount(url, HTTPAdapter(max_retries=retries))
@@ -67,7 +62,7 @@ def select_file():
         else:
             continue
         break
-    df = pd.DataFrame(list(zip(fonrlist, titleslist, nameslist))) # works
+    df = pd.DataFrame(list(zip(fonrlist, titleslist, nameslist)))  # works
     label.config(text="Process done")
 
     try:
