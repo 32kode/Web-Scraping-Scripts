@@ -1,20 +1,19 @@
 import tkinter as tk
+from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog as fd
 from bs4 import BeautifulSoup as bs
 import requests
 import pandas as pd
-from time import sleep
-from random import randint
+
 
 root = tk.Tk()
 root.title("Decision makers info")
-root.resizable(False, False)
-root.geometry("350x250")
+root.geometry("400x300")
 
-titleslist = [] # list to store titles
-nameslist = [] # list to store names
-fonrlist = [] # fo_nummer lista / list to store company numbers
+titleslist = []  # list to store titles
+nameslist = []  # list to store names
+fonrlist = []  # fo_nummer lista / list to store company numbers
 
 
 def select_file():
@@ -26,11 +25,13 @@ def select_file():
     filename = fd.askopenfile(
         title="open a file",
         initialdir="/",
-        )
+    )
     for files in filename:
+        label.configure(text="Please wait...\nloading decision maker info...")
+        root.update_idletasks()
         newfo_nr = files.strip().zfill(8)
         fonrlist.append(newfo_nr)
-        sleep(randint(2, 4))  # sleep for a random time
+        root.after(200, print("..."))  # sleep for a random time
         url = f"https://www.asiakastieto.fi/yritykset/fi/{newfo_nr}/paattajat"
         page = requests.get(url)
         soup = bs(page.content, "html.parser")
@@ -58,6 +59,7 @@ def select_file():
             continue
         break
     df = pd.DataFrame(list(zip(fonrlist, titleslist, nameslist))) # works
+    label.config(text="Process done")
 
     try:
         # with block automatically closes file
@@ -65,9 +67,10 @@ def select_file():
             df.to_excel(file.name, header=False, index=False)
     except AttributeError:
         # if user cancels save, filedialog returns None rather than a file object, and the 'with' will raise an error
-        print("The user cancelled save")
+        label.config(text="User cancelled save")
 
 
+label = Label(root, text="Choose file")
 open_button = ttk.Button(
     root,
     text="Open a file",
@@ -79,5 +82,6 @@ exit_button = ttk.Button(
     command=root.destroy
 )
 open_button.pack(expand=True)
+label.pack()
 exit_button.pack(expand=True)
 root.mainloop()
