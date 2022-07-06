@@ -2,14 +2,14 @@ import tkinter as tk
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog as fd
-from bs4 import BeautifulSoup as bs
+from bs4 import BeautifulSoup as Bs
 import pandas as pd
 import requests
 from requests.adapters import HTTPAdapter, Retry
 
 root = tk.Tk()
 root.title("Decision Makers Tool")
-root.geometry("400x300")
+root.geometry("500x300")
 
 titleslist = []  # list to store titles
 nameslist = []  # list to store names
@@ -26,7 +26,6 @@ def select_file():
     for files in filename:
         global x  # set x as 0 and after that increment by one
         x += 1
-        label.configure(text="Please wait...\nloading decision maker info")
         root.update_idletasks()
         newfo_nr = files.strip().zfill(8)
         fonrlist.append(newfo_nr)
@@ -36,9 +35,10 @@ def select_file():
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[502, 503, 504])
         s.mount(url, HTTPAdapter(max_retries=retries))
         page = s.get(url, timeout=30)
+        label.configure(text="Please wait...\nloading decision maker info")
         num_label.config(text=x)
         info_label.config(text="companies saved\nto Excel")
-        soup = bs(page.content, "html.parser")
+        soup = Bs(page.content, "html.parser")
         names = soup.find_all(attrs={"data-title": "Nimi"})
         titles = soup.find_all(attrs={"data-title": "Asema"})
         for name in names:
