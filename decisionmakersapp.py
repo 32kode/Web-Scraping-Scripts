@@ -27,24 +27,34 @@ def select_file():
         global x  # set x as 0 and after that increment by one
         x += 1
         root.update_idletasks()
-        newfo_nr = files.strip().zfill(8)
-        fonrlist.append(newfo_nr)
         root.after(200, print(""))  # sleep for 2 seconds
+        # choose the first company ID and fill all empty spaces with 0s
+        newfo_nr = files.strip().zfill(8)
+        #append the used company ID to fonr_list
+        fonrlist.append(newfo_nr)
+        
+        # scrape the data
         url = f"https://www.asiakastieto.fi/yritykset/fi/{newfo_nr}/paattajat"
         s = requests.Session()
         retries = Retry(total=3, backoff_factor=1, status_forcelist=[502, 503, 504])
         s.mount(url, HTTPAdapter(max_retries=retries))
         page = s.get(url, timeout=30)
+        soup = Bs(page.content, "html.parser")
+        
+        # print a text to the interface
         label.configure(text="Please wait...\nloading decision maker info")
         num_label.config(text=x)
         info_label.config(text="companies saved\nto Excel")
-        soup = Bs(page.content, "html.parser")
+        
+        # Parse the fetched HTML and append data to lists
         names = soup.find_all(attrs={"data-title": "Nimi"})
         titles = soup.find_all(attrs={"data-title": "Asema"})
         for name in names:
             nameslist.append(name.text)
             for title in titles:
                 titleslist.append(title.text)
+                
+                # append company number to the list corresponding to the number of rows of data
                 number_of_names = len(nameslist)
                 number_of_fo_nr = len(fonrlist)
                 sumfo = number_of_names - number_of_fo_nr
@@ -62,18 +72,17 @@ def select_file():
         else:
             continue
         break
-    df = pd.DataFrame(list(zip(fonrlist, titleslist, nameslist)))  # works
+    df = pd.DataFrame(list(zip(fonrlist, titleslist, nameslist)))
     label.config(text="Process done")
 
     try:
-        # with block automatically closes file
         with fd.asksaveasfile(mode='w', defaultextension=".xlsx") as file:
             df.to_excel(file.name, header=False, index=False)
     except AttributeError:
-        # if user cancels save, filedialog returns None rather than a file object, and the 'with' will raise an error
         label.config(text="User cancelled save")
 
-
+        
+       # Tkinter code
 num_label = Label(root, text="")
 info_label = Label(root, text="")
 label = Label(root, text="Choose file")
