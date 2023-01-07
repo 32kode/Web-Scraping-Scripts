@@ -107,7 +107,7 @@ with open('base_file.txt') as file:
             company_liikevaihto_ls.append('N/A')
 
 header_list = ['Y-tunnus', 'Perustusvuosi', 'Toimitusjohtaja', 'Sähköposti', 'Puhelin', 'Verkkosivut', 'Kotipaikka',
-               'Käyntiosoite', 'Postiosoite', 'Päätoimiala', 'Yhtiömuoto', 'Liikevaihto 2021']
+               'Käyntiosoite', 'Postiosoite', 'Päätoimiala', 'Yhtiömuoto', 'Liikevaihto 2022']
 
 df = pd.DataFrame(list(zip(company_ytunnus_ls, company_perustusvuosi_ls, company_toimari_ls, company_sahkoposti_ls,
                            company_puhelin_ls, company_kotisivut_ls, company_kotipaikka_ls, company_kayntiosoite_ls,
